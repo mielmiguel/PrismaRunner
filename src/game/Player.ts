@@ -88,6 +88,11 @@ export class Player {
     this.animator.updateJump(progress)
   }
 
+  /** S4 [Designer]: trigger pickup scale pulse (coin/multiplier). */
+  playPickup(): void {
+    this.animator.playPickup()
+  }
+
   /** S3 [Designer]: trigger crash animation. */
   playCrash(): void {
     this.animator.playCrash()

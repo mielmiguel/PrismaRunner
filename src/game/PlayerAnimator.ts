@@ -6,6 +6,7 @@ import {
   JUMP_BEND_LEG_ANGLE,
   JUMP_HEIGHT,
   LANE_TILT_MAX_DEG,
+  PICKUP_PULSE_DURATION_MS,
   RUN_CYCLE_AMP_ARM,
   RUN_CYCLE_AMP_LEG,
   RUN_CYCLE_BASE_FREQ,
@@ -18,6 +19,7 @@ const log = createLogger('PlayerAnimator')
 const degToRad = THREE.MathUtils.degToRad
 
 const CRASH_DURATION_S = GAME_OVER_CRASH_DELAY_MS / 1000
+const PICKUP_PULSE_DURATION_S = PICKUP_PULSE_DURATION_MS / 1000
 
 export class PlayerAnimator {
   private readonly rig: PlayerRig
@@ -28,12 +30,16 @@ export class PlayerAnimator {
   private crashParticleGeom: THREE.BufferGeometry | null = null
   private crashParticleMat: THREE.Material | null = null
 
+  private pickupElapsed = -1
+
   constructor(rig: PlayerRig) {
     this.rig = rig
     log.info('PlayerAnimator created')
   }
 
   updateRun(delta: number, speed: number): void {
+    this.updatePickup(delta)
+
     const speedFactor = Math.max(0.25, speed / BASE_SPEED)
     this.runPhase += delta * RUN_CYCLE_BASE_FREQ * speedFactor
 
@@ -83,6 +89,26 @@ export class PlayerAnimator {
 
     this.rig.leftArm.rotation.x -= armRaise
     this.rig.rightArm.rotation.x -= armRaise
+  }
+
+  /** S4 [Designer]: short scale pulse on pickup (coin/multiplier). */
+  playPickup(): void {
+    this.pickupElapsed = 0
+    log.debug('pickup pulse started')
+  }
+
+  private updatePickup(delta: number): void {
+    if (this.pickupElapsed < 0) return
+    this.pickupElapsed += delta
+    const t = THREE.MathUtils.clamp(this.pickupElapsed / PICKUP_PULSE_DURATION_S, 0, 1)
+    const scale = t < 0.5
+      ? 1 + 0.15 * (t * 2)
+      : 1 + 0.15 * (2 - t * 2)
+    this.rig.root.scale.setScalar(scale)
+    if (t >= 1) {
+      this.rig.root.scale.setScalar(1)
+      this.pickupElapsed = -1
+    }
   }
 
   /** S3 [Designer]: start crash animation (throwback, limb scatter, particles). */

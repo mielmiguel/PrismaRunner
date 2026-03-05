@@ -3,6 +3,9 @@ export const CHUNK_LENGTH = 20
 export const VISIBLE_CHUNKS = 8
 
 export const BASE_SPEED = 15 // world units per second
+export const MAX_SPEED = 40
+/** Speed increase per 10 seconds (world units/s). currentSpeed = min(BASE + elapsed/10 * SPEED_RAMP_PER_10S, MAX) */
+export const SPEED_RAMP_PER_10S = 0.5
 
 // S2 [Frontend] — player movement tuning
 export const LANE_SWITCH_DURATION = 0.2 // seconds to move between lanes
@@ -35,6 +38,12 @@ export const PALETTE = {
   obstacleTall: 0xc53030,
   obstacleLow: 0xeab308,
   obstacleWide: 0x1e293b,
+
+  // S4 [Designer] — coins & multiplier
+  coinGold: 0xe5b318,
+  coinEmissive: 0xcc9900,
+  multiplierBase: 0xa78bfa,
+  multiplierEmissive: 0x8b5cf6,
 } as const
 
 // S2 [Designer] — animation tuning constants
@@ -54,3 +63,21 @@ export const GAME_OVER_CRASH_DELAY_MS = 800 // delay before showing game over af
 export const PLAYER_AABB_HALF_X = 0.5
 export const PLAYER_AABB_HALF_Y = 1.2
 export const PLAYER_AABB_HALF_Z = 0.25
+
+// S4 [Frontend] — coins & multiplier
+export const COIN_POINTS = 10
+export const COIN_COLLECT_RADIUS = 1.2 // distance for pickup (XZ plane)
+export const MULTIPLIER_DURATION_S = 10
+export const MULTIPLIER_FACTOR = 2
+export const BEST_SCORE_KEY = 'prismarunner_best_score'
+
+// S4 [Designer] — visual tuning
+export const COIN_ROTATION_SPEED = Math.PI * 0.8 // rad/s
+export const MULTIPLIER_PULSE_SPEED = Math.PI * 1.5
+export const MULTIPLIER_PULSE_SCALE_MIN = 0.92
+export const MULTIPLIER_PULSE_SCALE_MAX = 1.08
+export const MULTIPLIER_EMISSIVE_INTENSITY_MIN = 0.2
+export const MULTIPLIER_EMISSIVE_INTENSITY_MAX = 0.6
+export const PICKUP_PULSE_DURATION_MS = 200
+export const COIN_COLLECT_PARTICLE_DURATION_MS = 500
+export const COIN_COLLECT_PARTICLE_COUNT = 6
