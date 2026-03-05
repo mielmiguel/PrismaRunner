@@ -30,6 +30,11 @@ export const PALETTE = {
   playerBlue: 0x38bdf8,
   playerDark: 0x020617,
   playerHat: 0xfacc6b,
+
+  // S3 [Designer] — obstacles
+  obstacleTall: 0xc53030,
+  obstacleLow: 0xeab308,
+  obstacleWide: 0x1e293b,
 } as const
 
 // S2 [Designer] — animation tuning constants
@@ -41,3 +46,11 @@ export const LANE_TILT_MAX_DEG = 15 // max body tilt on lane change (degrees)
 
 export const JUMP_BEND_LEG_ANGLE = (25 * Math.PI) / 180 // how much legs bend at jump apex (radians)
 export const JUMP_ARM_RAISE_ANGLE = (20 * Math.PI) / 180 // how much arms lift during jump (radians)
+
+// S3 [Frontend] — game over
+export const GAME_OVER_CRASH_DELAY_MS = 800 // delay before showing game over after collision
+
+// S3 [Frontend] — player AABB for collision (half-extents from center)
+export const PLAYER_AABB_HALF_X = 0.5
+export const PLAYER_AABB_HALF_Y = 1.2
+export const PLAYER_AABB_HALF_Z = 0.25

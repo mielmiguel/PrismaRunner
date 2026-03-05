@@ -88,6 +88,16 @@ export class Player {
     this.animator.updateJump(progress)
   }
 
+  /** S3 [Designer]: trigger crash animation. */
+  playCrash(): void {
+    this.animator.playCrash()
+  }
+
+  /** Advance crash animation; call each frame in GAME_OVER. Returns true while animating. */
+  updateCrash(delta: number): boolean {
+    return this.animator.updateCrash(delta)
+  }
+
   private createPrismaRobotModel() {
     const torsoHeight = 1
     const torsoWidth = 0.9

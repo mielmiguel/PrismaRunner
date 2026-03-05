@@ -1,8 +1,10 @@
 import * as THREE from 'three'
 import {
   BASE_SPEED,
+  GAME_OVER_CRASH_DELAY_MS,
   JUMP_ARM_RAISE_ANGLE,
   JUMP_BEND_LEG_ANGLE,
+  JUMP_HEIGHT,
   LANE_TILT_MAX_DEG,
   RUN_CYCLE_AMP_ARM,
   RUN_CYCLE_AMP_LEG,
@@ -15,10 +17,16 @@ const log = createLogger('PlayerAnimator')
 
 const degToRad = THREE.MathUtils.degToRad
 
+const CRASH_DURATION_S = GAME_OVER_CRASH_DELAY_MS / 1000
+
 export class PlayerAnimator {
   private readonly rig: PlayerRig
 
   private runPhase = 0
+  private crashElapsed = -1
+  private crashParticles: THREE.Mesh[] = []
+  private crashParticleGeom: THREE.BufferGeometry | null = null
+  private crashParticleMat: THREE.Material | null = null
 
   constructor(rig: PlayerRig) {
     this.rig = rig
@@ -63,8 +71,7 @@ export class PlayerAnimator {
     const clamped = THREE.MathUtils.clamp(progress, 0, 1)
 
     const jumpCurve = 4 * clamped * (1 - clamped)
-    const jumpHeight = jumpCurve * 2.6
-    this.rig.root.position.y += jumpHeight
+    this.rig.root.position.y = jumpCurve * JUMP_HEIGHT
 
     const bendFactor = Math.sin(clamped * Math.PI)
 
@@ -76,6 +83,82 @@ export class PlayerAnimator {
 
     this.rig.leftArm.rotation.x -= armRaise
     this.rig.rightArm.rotation.x -= armRaise
+  }
+
+  /** S3 [Designer]: start crash animation (throwback, limb scatter, particles). */
+  playCrash(): void {
+    this.crashElapsed = 0
+    this.spawnCrashParticles()
+    log.debug('crash animation started')
+  }
+
+  /** Call each frame while in GAME_OVER to advance crash animation. Returns true while animating. */
+  updateCrash(delta: number): boolean {
+    if (this.crashElapsed < 0) return false
+    this.crashElapsed += delta
+    const t = THREE.MathUtils.clamp(this.crashElapsed / CRASH_DURATION_S, 0, 1)
+    const easeOut = 1 - (1 - t) * (1 - t)
+
+    this.rig.root.position.z -= easeOut * 2
+    this.rig.root.rotation.x = easeOut * (Math.PI / 2)
+
+    const scatter = easeOut * 0.8
+    this.rig.leftArm.rotation.set(
+      -scatter * 1.2,
+      scatter * 0.5,
+      scatter * 0.3,
+    )
+    this.rig.rightArm.rotation.set(
+      scatter * 1.1,
+      -scatter * 0.4,
+      -scatter * 0.4,
+    )
+    this.rig.leftLeg.rotation.set(scatter * 0.9, scatter * 0.2, 0)
+    this.rig.rightLeg.rotation.set(-scatter * 0.85, -scatter * 0.2, 0)
+
+    this.updateCrashParticles(delta)
+
+    return t < 1
+  }
+
+  private spawnCrashParticles(): void {
+    const parent = this.rig.root.parent
+    if (!parent) return
+    this.crashParticleGeom = new THREE.SphereGeometry(0.08, 6, 4)
+    this.crashParticleMat = new THREE.MeshBasicMaterial({ color: 0x8899aa })
+    const origin = new THREE.Vector3()
+    this.rig.root.getWorldPosition(origin)
+    for (let i = 0; i < 8; i++) {
+      const mesh = new THREE.Mesh(this.crashParticleGeom, this.crashParticleMat)
+      mesh.position.copy(origin)
+      parent.add(mesh)
+      this.crashParticles.push(mesh)
+    }
+  }
+
+  private updateCrashParticles(delta: number): void {
+    const t = this.crashElapsed / CRASH_DURATION_S
+    for (let i = 0; i < this.crashParticles.length; i++) {
+      const p = this.crashParticles[i]
+      const angle = (i / this.crashParticles.length) * Math.PI * 2
+      p.position.x += Math.cos(angle) * delta * 4
+      p.position.y += (0.5 + (i % 3) * 0.2) * delta * 6
+      p.position.z -= delta * 3
+      const scale = 1 - t
+      p.scale.setScalar(scale)
+    }
+    if (t >= 1) {
+      for (const p of this.crashParticles) {
+        p.parent?.remove(p)
+      }
+      this.crashParticles.length = 0
+      this.crashParticleGeom?.dispose()
+      this.crashParticleGeom = null
+      if (this.crashParticleMat) {
+        this.crashParticleMat.dispose()
+        this.crashParticleMat = null
+      }
+    }
   }
 }
 
