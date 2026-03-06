@@ -52,6 +52,19 @@ export class PlayerController {
     this.player.group.position.set(0, 0, this.baseZ)
   }
 
+  /** Reset position and state for new game. */
+  reset(): void {
+    this.player.group.position.set(0, 0, this.baseZ)
+    this.currentLane = 0
+    this.targetLane = 0
+    this.laneFromX = 0
+    this.laneToX = 0
+    this.laneElapsed = 0
+    this.isJumping = false
+    this.jumpElapsed = 0
+    this.state = 'RUNNING'
+  }
+
   update(delta: number, speed: number): void {
     this.player.updateRun(delta, speed)
 

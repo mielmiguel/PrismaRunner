@@ -9,8 +9,63 @@
   <body>
     <div id="app">
       <canvas id="game-canvas"></canvas>
-      <!-- S5 HUD: multiplier display. Game exposes getMultiplierActive(), getMultiplierRemaining(). -->
-      <div id="hud-multiplier" class="hud-multiplier" aria-hidden="true" style="display: none;"></div>
+      <div id="ui" class="ui-layer" aria-live="polite">
+        <!-- S5 [Designer] placeholder structure; UIManager controls visibility via .screen--visible -->
+        <div id="screen-main-menu" class="screen screen--panel" role="dialog" aria-label="Main menu">
+          <div class="screen-backdrop"></div>
+          <div class="screen-content screen-content--center">
+            <h1 class="screen-title">PrismaRunner</h1>
+            <p class="main-menu-best" id="main-menu-best">Best: 0</p>
+            <div class="screen-actions">
+              <button type="button" class="btn btn--primary" id="btn-play">Play</button>
+              <button type="button" class="btn btn--secondary" id="btn-skin-select">Skins</button>
+            </div>
+          </div>
+        </div>
+        <div id="screen-skin-select" class="screen screen--panel screen--hidden" role="dialog" aria-label="Skin selector">
+          <div class="screen-backdrop"></div>
+          <div class="screen-content screen-content--center">
+            <h2 class="screen-heading">Choose skin</h2>
+            <div class="skin-grid" id="skin-grid">
+              <button type="button" class="skin-card skin-card--selected" data-skin-id="runner" aria-pressed="true">
+                <span class="skin-card-preview skin-card-preview--placeholder">Runner</span>
+                <span class="skin-card-name">Runner</span>
+              </button>
+              <button type="button" class="skin-card" data-skin-id="tank" aria-pressed="false">
+                <span class="skin-card-preview skin-card-preview--placeholder">Tank</span>
+                <span class="skin-card-name">Tank</span>
+              </button>
+              <button type="button" class="skin-card" data-skin-id="slim" aria-pressed="false">
+                <span class="skin-card-preview skin-card-preview--placeholder">Slim</span>
+                <span class="skin-card-name">Slim</span>
+              </button>
+              <button type="button" class="skin-card" data-skin-id="cube" aria-pressed="false">
+                <span class="skin-card-preview skin-card-preview--placeholder">Cube</span>
+                <span class="skin-card-name">Cube</span>
+              </button>
+            </div>
+            <button type="button" class="btn btn--secondary btn--back" id="btn-skin-back">Back</button>
+          </div>
+        </div>
+        <div id="screen-hud" class="screen screen--hud screen--hidden">
+          <div class="hud-score" id="hud-score">0</div>
+          <div id="hud-multiplier" class="hud-multiplier" aria-hidden="true"></div>
+        </div>
+        <div id="screen-game-over" class="screen screen--panel screen--hidden" role="dialog" aria-label="Game over">
+          <div class="screen-backdrop"></div>
+          <div class="screen-content screen-content--center">
+            <h2 class="screen-title screen-title--game-over">Game Over</h2>
+            <p class="game-over-score" id="game-over-score">0</p>
+            <p class="game-over-best" id="game-over-best">Best: 0</p>
+            <span class="game-over-new" id="game-over-new" aria-hidden="true">NEW!</span>
+            <div class="screen-actions screen-actions--wrap">
+              <button type="button" class="btn btn--primary" id="btn-play-again">Play Again</button>
+              <button type="button" class="btn btn--share" id="btn-share-x">Share to X</button>
+              <button type="button" class="btn btn--secondary" id="btn-menu">Menu</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

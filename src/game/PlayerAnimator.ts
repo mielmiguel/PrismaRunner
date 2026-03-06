@@ -118,6 +118,15 @@ export class PlayerAnimator {
     log.debug('crash animation started')
   }
 
+  /** Reset after game over (clear crash state, reset transform). */
+  reset(): void {
+    this.crashElapsed = -1
+    this.rig.root.position.set(0, 0, 0)
+    this.rig.root.rotation.set(0, 0, 0)
+    this.rig.root.scale.setScalar(1)
+    this.runPhase = 0
+  }
+
   /** Call each frame while in GAME_OVER to advance crash animation. Returns true while animating. */
   updateCrash(delta: number): boolean {
     if (this.crashElapsed < 0) return false

@@ -155,6 +155,17 @@ export class ChunkGenerator {
     })
   }
 
+  /** Reset all chunks to initial positions and respawn content (new game). */
+  reset(): void {
+    for (let i = 0; i < this.chunks.length; i++) {
+      const chunk = this.chunks[i]
+      chunk.mesh.position.set(0, 0, -i * CHUNK_LENGTH)
+      this.clearChunkObstacles(chunk)
+      this.spawnPatternForChunk(chunk)
+    }
+    log.debug('chunks reset')
+  }
+
   /** Coins still collectible: world positions + chunk/coin indices for marking collected. */
   getActiveCoins(): CoinRef[] {
     const result: CoinRef[] = []

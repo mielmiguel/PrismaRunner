@@ -46,6 +46,14 @@ export const PALETTE = {
   multiplierEmissive: 0x8b5cf6,
 } as const
 
+// S6 [Designer] — skin colors (Runner, Tank, Slim, Cube)
+export const SKIN_COLORS = {
+  runner: 0x38bdf8,
+  tank: 0xef4444,
+  slim: 0x22c55e,
+  cube: 0xa78bfa,
+} as const
+
 // S2 [Designer] — animation tuning constants
 export const RUN_CYCLE_BASE_FREQ = Math.PI * 2 // radians per second at BASE_SPEED
 export const RUN_CYCLE_AMP_LEG = (40 * Math.PI) / 180 // leg swing amplitude in radians
@@ -70,6 +78,7 @@ export const COIN_COLLECT_RADIUS = 1.2 // distance for pickup (XZ plane)
 export const MULTIPLIER_DURATION_S = 10
 export const MULTIPLIER_FACTOR = 2
 export const BEST_SCORE_KEY = 'prismarunner_best_score'
+export const SKIN_STORAGE_KEY = 'prismarunner_skin'
 
 // S4 [Designer] — visual tuning
 export const COIN_ROTATION_SPEED = Math.PI * 0.8 // rad/s
