@@ -69,18 +69,28 @@ export function createCoins(slots: CoinSlot[]): CoinFactoryResult {
   return { mesh, localPositions }
 }
 
-/** Cumulative Y rotation (rad) for visual spin. Store per-chunk and pass here. */
-export function updateCoinRotation(mesh: THREE.InstancedMesh, delta: number, rotationY: number): number {
+/** Cumulative Y rotation (rad) for visual spin. collected[i]=true → instance hidden (scale 0). */
+export function updateCoinRotation(
+  mesh: THREE.InstancedMesh,
+  delta: number,
+  rotationY: number,
+  collected: boolean[],
+): number {
   const nextRotationY = rotationY + delta * COIN_ROTATION_SPEED
   const matrix = new THREE.Matrix4()
   const position = new THREE.Vector3()
   const quat = new THREE.Quaternion()
-  const scale = new THREE.Vector3(1, 1, 1)
+  const scale = new THREE.Vector3()
   for (let i = 0; i < mesh.count; i++) {
     mesh.getMatrixAt(i, matrix)
-    position.setFromMatrixPosition(matrix)
-    quat.setFromEuler(new THREE.Euler(0, nextRotationY, 0))
-    matrix.compose(position, quat, scale)
+    if (collected[i]) {
+      position.setFromMatrixPosition(matrix)
+      matrix.compose(position, new THREE.Quaternion(), new THREE.Vector3(0, 0, 0))
+    } else {
+      matrix.decompose(position, quat, scale)
+      quat.setFromEuler(new THREE.Euler(0, nextRotationY, 0))
+      matrix.compose(position, quat, new THREE.Vector3(1, 1, 1))
+    }
     mesh.setMatrixAt(i, matrix)
   }
   mesh.instanceMatrix.needsUpdate = true

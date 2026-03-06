@@ -24,6 +24,7 @@ import { checkCollision } from './CollisionDetector'
 import { BonusManager, collectCoins } from './BonusManager'
 import { CoinCollectParticles } from './CoinCollectParticles'
 import type { Player } from './Player'
+import type { AudioManager } from './AudioManager'
 
 export type GameState = 'MENU' | 'PLAYING' | 'GAME_OVER'
 
@@ -96,6 +97,7 @@ export class Game {
 
   private gameOverAt = 0
   private gameOverLogged = false
+  private readonly audio: AudioManager | null
   private bestScore = 0
   private recordBeatenThisGame = false
   private lastLoggedScore = -1
@@ -103,7 +105,7 @@ export class Game {
   private lastLoggedCoins = -1
   private lastLoggedMult = false
 
-  constructor(canvas: HTMLCanvasElement, initialSkinId?: PlayerSkinId) {
+  constructor(canvas: HTMLCanvasElement, initialSkinId?: PlayerSkinId, audio?: AudioManager) {
     this.sceneManager = new SceneManager(canvas)
     this.chunks = new ChunkGenerator(this.sceneManager.scene, LANE_WIDTH)
     this.bonusManager = new BonusManager()
@@ -117,6 +119,7 @@ export class Game {
 
     this.input = new InputManager(canvas)
     this.coinParticles = new CoinCollectParticles(this.sceneManager.scene)
+    this.audio = audio ?? null
 
     log.info('game constructed', { skin: this.currentSkinId })
     requestAnimationFrame((t) => this.loop(t))
@@ -282,6 +285,7 @@ export class Game {
       this.gameOverAt = performance.now()
       this.gameOverLogged = false
       this.player.playCrash()
+      this.audio?.playSFX('crash')
     }
 
     const coins = this.chunks.getActiveCoins()
@@ -296,6 +300,7 @@ export class Game {
       this.bonusManager.onCoinsCollected(coins, collectedIndices)
       this.player.playPickup()
       this.coinParticles.spawn(pos.x, pos.y, pos.z)
+      this.audio?.playSFX('coin')
     }
 
     const multRefs = this.chunks.getActiveMultiplierRefs()
@@ -306,6 +311,7 @@ export class Game {
         this.bonusManager.activateMultiplier()
         this.chunks.markMultiplierCollected(ref.chunkIndex)
         this.player.playPickup()
+        this.audio?.playSFX('multiplier')
         break
       }
     }
@@ -359,8 +365,11 @@ export class Game {
         return this.playerController.requestMoveLeft()
       case 'moveRight':
         return this.playerController.requestMoveRight()
-      case 'jump':
-        return this.playerController.requestJump()
+      case 'jump': {
+        const ok = this.playerController.requestJump()
+        if (ok) this.audio?.playSFX('jump')
+        return ok
+      }
       default:
         return false
     }

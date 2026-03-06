@@ -259,6 +259,7 @@ export class ChunkGenerator {
           chunk.coins.mesh,
           deltaTime,
           chunk.coins.rotationY,
+          chunk.coins.collected,
         )
       }
       if (chunk.multiplier && !chunk.multiplier.collected) {

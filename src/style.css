@@ -296,6 +296,28 @@ body {
   display: none;
 }
 
+.mute-btn {
+  position: absolute;
+  top: clamp(12px, 3vw, 20px);
+  left: clamp(12px, 3vw, 20px);
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  font-size: 1.25rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid var(--palette-railing);
+  border-radius: 8px;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: opacity 0.2s;
+}
+.mute-btn:hover {
+  opacity: 0.9;
+}
+.mute-btn.mute-btn--muted {
+  opacity: 0.6;
+}
+
 /* ---- Game over ---- */
 .game-over-score,
 .game-over-best {

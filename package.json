@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "generate-audio": "node scripts/generate-audio-placeholders.mjs"
   },
   "devDependencies": {
+    "@types/howler": "^2.2.12",
     "@types/three": "^0.183.1",
     "typescript": "~5.9.3",
     "vite": "^7.3.1"

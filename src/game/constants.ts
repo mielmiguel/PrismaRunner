@@ -79,6 +79,7 @@ export const MULTIPLIER_DURATION_S = 10
 export const MULTIPLIER_FACTOR = 2
 export const BEST_SCORE_KEY = 'prismarunner_best_score'
 export const SKIN_STORAGE_KEY = 'prismarunner_skin'
+export const MUTE_STORAGE_KEY = 'prismarunner_muted'
 
 // S4 [Designer] — visual tuning
 export const COIN_ROTATION_SPEED = Math.PI * 0.8 // rad/s
@@ -90,3 +91,7 @@ export const MULTIPLIER_EMISSIVE_INTENSITY_MAX = 0.6
 export const PICKUP_PULSE_DURATION_MS = 200
 export const COIN_COLLECT_PARTICLE_DURATION_MS = 500
 export const COIN_COLLECT_PARTICLE_COUNT = 6
+
+// S7 [Designer] — audio volume (0–1)
+export const MUSIC_VOLUME = 0.4
+export const SFX_VOLUME = 0.7

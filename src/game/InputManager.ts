@@ -65,19 +65,19 @@ export class InputManager {
 
     switch (event.code) {
       case 'ArrowLeft':
+      case 'KeyA':
         this.enqueue('moveLeft', 'key-left')
         event.preventDefault()
         break
       case 'ArrowRight':
+      case 'KeyD':
         this.enqueue('moveRight', 'key-right')
         event.preventDefault()
         break
       case 'ArrowUp':
-        this.enqueue('jump', 'key-up')
-        event.preventDefault()
-        break
+      case 'KeyW':
       case 'Space':
-        this.enqueue('jump', 'key-space')
+        this.enqueue('jump', 'key-up')
         event.preventDefault()
         break
       default:

@@ -1,6 +1,7 @@
 import './style.css'
 import { Game } from './game/Game'
 import { UIManager } from './ui/UIManager'
+import { AudioManager } from './game/AudioManager'
 
 const bootstrap = () => {
   const canvas = document.querySelector<HTMLCanvasElement>('#game-canvas')
@@ -9,12 +10,14 @@ const bootstrap = () => {
     return
   }
 
-  const game = new Game(canvas)
+  const audio = new AudioManager()
+  const game = new Game(canvas, undefined, audio)
   ;(window as unknown as { __prGame?: Game }).__prGame = game
 
   const ui = new UIManager({
     getBestScore: () => game.getBestScore(),
-    onPlay: () => {
+    onPlay: async () => {
+      await audio.playMusic()
       game.startGame()
       ui.goToPlaying()
     },
@@ -28,9 +31,11 @@ const bootstrap = () => {
     },
     onSkinApply: (skinId) => game.applySkin(skinId),
     getCurrentSkinId: () => game.getCurrentSkinId(),
+    audio,
   })
 
   game.setOnGameOverScreenRequested(() => {
+    ui.setGameOverScore(game.getScore())
     ui.showGameOver(game.getScore(), game.getBestScore(), game.wasRecordBeatenThisGame())
   })
 

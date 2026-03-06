@@ -3,6 +3,7 @@ import { showScreen, hideScreen, type ScreenId } from './screens'
 import type { PlayerSkinId } from '../models/SkinFactory'
 import { SKIN_STORAGE_KEY } from '../game/constants'
 import { initSkinPreviews } from '../models/SkinPreview'
+import type { AudioManager } from '../game/AudioManager'
 
 const log = createLogger('UIManager')
 
@@ -15,11 +16,12 @@ const SCREEN_IDS: Record<ScreenId, string> = {
 
 export type UIManagerOptions = {
   getBestScore: () => number
-  onPlay: () => void
+  onPlay: () => void | Promise<void>
   onRestart: () => void
   onMenu: () => void
   onSkinApply: (skinId: PlayerSkinId) => void
   getCurrentSkinId: () => PlayerSkinId
+  audio?: AudioManager | null
 }
 
 export class UIManager {
@@ -86,6 +88,9 @@ export class UIManager {
     this.bindButtons()
     this.bindSkinCards()
     this.updateSkinSelection(this.opts.getCurrentSkinId())
+    if (this.opts.audio) {
+      this.updateMuteButton(this.opts.audio.isMuted())
+    }
     this.showScreen('MAIN_MENU')
     this.updateMenuBestScore()
     log.info('UIManager initialized')
@@ -98,7 +103,10 @@ export class UIManager {
     for (const card of cards) {
       const skinId = card.dataset.skinId as PlayerSkinId
       if (!skinId || !['runner', 'tank', 'slim', 'cube'].includes(skinId)) continue
-      card.addEventListener('click', () => this.handleSkinSelect(skinId))
+      card.addEventListener('click', () => {
+        this.opts.audio?.playSFX('ui_click')
+        this.handleSkinSelect(skinId)
+      })
     }
   }
 
@@ -130,9 +138,16 @@ export class UIManager {
     const btnPlayAgain = document.getElementById('btn-play-again')
     const btnShareX = document.getElementById('btn-share-x')
     const btnMenu = document.getElementById('btn-menu')
+    const btnMute = document.getElementById('btn-mute')
 
-    btnPlay?.addEventListener('click', () => this.opts.onPlay())
+    const uiClick = () => this.opts.audio?.playSFX('ui_click')
+
+    btnPlay?.addEventListener('click', async () => {
+      uiClick()
+      await this.opts.onPlay()
+    })
     btnSkinSelect?.addEventListener('click', () => {
+      uiClick()
       this.updateSkinSelection(this.opts.getCurrentSkinId())
       this.showScreen('SKIN_SELECT')
       if (!this.skinPreviewsInited) {
@@ -143,10 +158,38 @@ export class UIManager {
         }
       }
     })
-    btnSkinBack?.addEventListener('click', () => this.showScreen('MAIN_MENU'))
-    btnPlayAgain?.addEventListener('click', () => this.opts.onRestart())
-    btnShareX?.addEventListener('click', () => this.handleShareX())
-    btnMenu?.addEventListener('click', () => this.opts.onMenu())
+    btnSkinBack?.addEventListener('click', () => {
+      uiClick()
+      this.showScreen('MAIN_MENU')
+    })
+    btnPlayAgain?.addEventListener('click', () => {
+      uiClick()
+      this.opts.onRestart()
+    })
+    btnShareX?.addEventListener('click', () => {
+      uiClick()
+      this.handleShareX()
+    })
+    btnMenu?.addEventListener('click', () => {
+      uiClick()
+      this.opts.onMenu()
+    })
+    btnMute?.addEventListener('click', () => {
+      const audio = this.opts.audio
+      if (audio) {
+        audio.setMuted(!audio.isMuted())
+        this.updateMuteButton(audio.isMuted())
+      }
+    })
+  }
+
+  private updateMuteButton(muted: boolean): void {
+    const btn = document.getElementById('btn-mute')
+    if (!btn) return
+    btn.setAttribute('aria-label', muted ? 'Unmute' : 'Mute')
+    btn.setAttribute('title', muted ? 'Unmute' : 'Mute')
+    btn.textContent = muted ? '🔇' : '🔊'
+    btn.classList.toggle('mute-btn--muted', muted)
   }
 
   showScreen(id: ScreenId, onTransitionEnd?: () => void): void {
